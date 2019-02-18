@@ -1,5 +1,3 @@
-$(document).ready(function() {
-   // Initialize Firebase
    var config = {
     apiKey: "AIzaSyBQNl8-00TclKarTRQXal3U6v3rFdjYbxg",
     authDomain: "trainschedule-ecdb0.firebaseapp.com",
@@ -8,78 +6,37 @@ $(document).ready(function() {
     storageBucket: "trainschedule-ecdb0.appspot.com",
     messagingSenderId: "477269490186"
   };
+
   firebase.initializeApp(config);
 
-console.log(firebase);
+
 //CREATE VARIABLE//
-var database = firebase.database();
+var trainData = firebase.database();
 
 //USER CLICK//
-$('#sumbit').on('click', function() {
- var name = $('#nameInput').val().trim();
- var dest = $('#destInput').val().trim();
- var nextTrain = $('#timeinput').val().trim();
- var minsAway = $('#freqInput').val().trim();
+$('#addTrainBtn').on('click',function(){
+ var trainName = $('#TrainNameInput').val().trim();
+ var destination = $('#destinationInput').val().trim();
+ var firstTrain = moment($('#firstTrainInput').val().trim(), "HH:mm".substract(10, "years").format("X"));
+ var frequency = $('#frequencyInput').val().trim();
 
-
- database.ref().push({
-    name:name,
-    dest:dest,
-    nextTrain:nextTrain,
-    minsAway:minsAway,
-    timeAdded: firebase.database.ServerValue.TIMESTAMP
- });
-
- $('input').val('');
+ console.log(firstTrain);
  return false;
-});
 
-//CHILD FUNCTION//
- 
+})
 
-database.ref().on('child_added', function(response){
-    var name = response.val().name;
-    var dest = response.val().dest;
-    var nextTrain = response.val().nextTrain;
-    var minsAway = response.val().minsAway;
+trainData.ref().on("child_added", function(snapshot){
+  var name = snapshot.val().name;
+  var destination = snapshot.val().destination;
+  var frequency = snapshot.val().frequency;
+  var firstTrain = snapshot.val().firstTrain;
 
-    console.log('Name:' + name);
-    console.log('destination:' + dest);
+  var remainder = moment().diff(moment.unix(fristTrain),"minutes")%frequency;
+  var minutes = frequency - remainder;
+  var arrival = moment().add(minutes,"m").format("hh:mm A");
 
+  console.log(remainder);
+  console.log(minutes);
+  console.log(arrival);
 
-
-//VARIABLES USED TO CALCULATE TIMES USING MOMENT//
-var minsAway = parseInt(freq);
-
-var currentTime = moment();
-
-var tConverted = moment(response.val().time, 'HH:mm').substract(1, 'years');
-
-var trainTime = moment(tConverted).format('HH:mm');
-
-var fConverted = moment(trainTime, 'HH:mm').subtract(1, 'years');
-
-var fDifference = moment().diff(moment(fConverted), 'minutes');
-
-var tRemainder = fDifference  % freq;
-
-var minsAway = freq - tRemainder;
-
-var nextTrain = moment().add(minsAway, 'minutes');
-
-
-//APPEND TO THE TRAIN TABLE//
-$('#currentTime').text(currentTime);
-$('#trainTable').append (
-    "<tr><td id='nameDisplay'>" + response.val().name +
-    "<tr><td id='destDisplay'>" + response.val().dest +
-    "<tr><td id='freqDisplay'>" + response.val().freq +
-    "<tr><td id='nextDisplay'>" + moment(nextTrain).format("HH:mm") +
-    "<tr><td id='minsDisplay'>" + minsAway + ' minutes until arrival ' + '</td></tr>')
-},
-function(errorObject){
-    console.log("Read failed: " + errorObject.code)
-});
-
-
-});
+})
