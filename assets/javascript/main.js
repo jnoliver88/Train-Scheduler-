@@ -20,7 +20,24 @@ $('#addTrainBtn').on('click',function(){
  var firstTrain = moment($('#firstTrainInput').val().trim(), "HH:mm".substract(10, "years").format("X"));
  var frequency = $('#frequencyInput').val().trim();
 
- console.log(firstTrain);
+ var newTrain = {
+  name: trainName,
+  destination: destination,
+  fristTrain: firstTrain,
+  frequency: frequency
+ }
+
+ trainData.ref().push(newTrain);
+
+ alert("Train Added!");
+
+
+
+ $("#trainNameInput").val("");
+ $("#destinationInput").val("");
+ $("#firstTrainInput").val("");
+ $("#frequencyInput").val("");
+
  return false;
 
 })
@@ -39,4 +56,7 @@ trainData.ref().on("child_added", function(snapshot){
   console.log(minutes);
   console.log(arrival);
 
-})
+  $("#trainTable > tBody").append("<tr><td>"+name+"</td><td>"+destination+"</td><td>"+frequency+"</td><td>"+arrival+"</td><td"+minutes+"</td></tr>");
+
+});
+
